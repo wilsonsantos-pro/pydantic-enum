@@ -1,3 +1,5 @@
+[![Tests](https://github.com/wilsonsantos-pro/pydantic-enum/actions/workflows/run-tests.yml/badge.svg)](https://github.com/wilsonsantos-pro/pydantic-enum/actions/workflows/run-tests.yml)
+
 # Pydantic Enum
 
 Some utils for working with Enums on a Pydantic Model.
