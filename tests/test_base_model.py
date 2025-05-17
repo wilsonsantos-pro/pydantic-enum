@@ -56,3 +56,13 @@ def test_invalid_string():
 def test_invalid_value():
     with pytest.raises(ValidationError):
         ColorItem(color=("BLUE", 1))
+
+
+def test_list():
+    class Favorite(MyBaseModel):
+        colors: Annotated[list[str], list[Color]]
+
+    assert Favorite(colors=[Color.RED, Color.GREEN]).colors == [
+        Color.RED.name,
+        Color.GREEN.name,
+    ]

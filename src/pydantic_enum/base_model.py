@@ -1,12 +1,14 @@
 from collections.abc import Generator
 from enum import Enum, IntEnum
-from typing import Any, get_type_hints
+from typing import Any, get_args, get_origin, get_type_hints
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from typing_extensions import Self
 
 from pydantic_enum.check_version import is_pydantic_v2
+
+_EnumFieldOrigin = int | str | list[str] | None
 
 
 class _BaseModel(BaseModel):
@@ -18,7 +20,9 @@ class _BaseModel(BaseModel):
         return {n: f.field_info for n, f in cls.__fields__.items()}  # pyright: ignore
 
     @classmethod
-    def sanitize_enum(cls, value: int | str | None, enum_cls: type[Enum]) -> str | None:
+    def sanitize_enum(
+        cls, value: _EnumFieldOrigin, enum_cls: type[Enum]
+    ) -> _EnumFieldOrigin | list[_EnumFieldOrigin]:
         sanitized_value = None
         try:
             if isinstance(value, enum_cls):
@@ -27,6 +31,8 @@ class _BaseModel(BaseModel):
                 sanitized_value = enum_cls(value).name
             elif isinstance(value, str):
                 sanitized_value = enum_cls[value].name
+            elif isinstance(value, list):
+                return [cls.sanitize_enum(v, enum_cls) for v in value]  # pyright: ignore
             elif value is not None:
                 raise ValueError()
         except (ValueError, KeyError) as exc:
@@ -48,8 +54,11 @@ class _BaseModel(BaseModel):
         for field_name, field in cls.get_model_fields().items():
             enum_cls = None
             for meta in annotations[field_name].__metadata__:
-                if isinstance(meta, type) and issubclass(meta, IntEnum):
-                    enum_cls = meta
+                if isinstance(meta, type):
+                    if issubclass(meta, IntEnum):
+                        enum_cls = meta
+                    elif get_origin(meta) == list:
+                        enum_cls = get_args(meta)[0]
 
             if enum_cls:
                 if is_pydantic_v2():
