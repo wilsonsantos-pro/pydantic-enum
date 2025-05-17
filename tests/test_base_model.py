@@ -66,3 +66,13 @@ def test_list():
         Color.RED.name,
         Color.GREEN.name,
     ]
+
+
+def test_tuple():
+    class Favorite(MyBaseModel):
+        colors: Annotated[tuple[str, str], tuple[Color, Color]]
+
+    assert Favorite(colors=(Color.RED, Color.GREEN)).colors == (
+        Color.RED.name,
+        Color.GREEN.name,
+    )
