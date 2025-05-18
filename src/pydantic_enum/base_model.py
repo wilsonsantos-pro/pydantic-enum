@@ -55,7 +55,7 @@ class _BaseModel(BaseModel):
 
         for field_name, field in cls.get_model_fields().items():
             enum_cls = None
-            for meta in annotations[field_name].__metadata__:
+            for meta in getattr(annotations[field_name], "__metadata__", []):
                 if isinstance(meta, type) and issubclass(meta, IntEnum):
                     enum_cls = meta
                 elif get_origin(meta) in (list, tuple):

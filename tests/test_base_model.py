@@ -76,3 +76,11 @@ def test_tuple():
         Color.RED.name,
         Color.GREEN.name,
     )
+
+
+def test_non_annotated():
+    class Favorite(MyBaseModel):
+        user_id: int
+        color: Annotated[str, Color]
+
+    assert Favorite(user_id=1, color=Color.RED).color == Color.RED.name
