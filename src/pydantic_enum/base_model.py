@@ -2,13 +2,14 @@ from collections.abc import Generator
 from enum import Enum, IntEnum
 from typing import Any, get_args, get_origin, get_type_hints
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
 from typing_extensions import Self
 
 from pydantic_enum.check_version import is_pydantic_v2
 
 _EnumFieldOrigin = int | str | list[str] | tuple | None
+FieldName = str
 
 
 class _BaseModel(BaseModel):
@@ -49,7 +50,7 @@ class _BaseModel(BaseModel):
         )
 
     @classmethod
-    def enum_fields(cls) -> Generator[tuple[str, FieldInfo, type[Enum]], None, None]:
+    def enum_fields(cls) -> Generator[tuple[FieldName, FieldInfo, type[Enum]], None, None]:
         field: FieldInfo
         annotations = get_type_hints(cls, include_extras=True)
 
@@ -82,6 +83,7 @@ def create_model_v2() -> type[BaseModel]:
         def __pydantic_init_subclass__(cls, **kwargs):
             super().__pydantic_init_subclass__(**kwargs)
             cls._patch_enum_description()
+            cls.model_rebuild(force=True)
 
         @model_validator(mode="after")  # pyright: ignore
         def check_enum_value_after(self) -> Self:

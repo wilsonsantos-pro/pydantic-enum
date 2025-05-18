@@ -84,3 +84,62 @@ def test_non_annotated():
         color: Annotated[str, Color]
 
     assert Favorite(user_id=1, color=Color.RED).color == Color.RED.name
+
+
+if is_pydantic_v2():
+
+    def test_json_schema():
+        expected = {
+            "properties": {
+                "color": {
+                    "description": "Enum values: RED, BLUE, GREEN",
+                    "title": "Color",
+                    "type": "string",
+                },
+                "default": {
+                    "type": "string",
+                    "default": 1,
+                    "description": "Enum values: RED, BLUE, GREEN",
+                    "title": "Default",
+                },
+                "empty": {
+                    "anyOf": [{"type": "string"}, {"type": "null"}],
+                    "default": None,
+                    "description": "Enum values: RED, BLUE, GREEN",
+                    "title": "Empty",
+                },
+            },
+            "required": ["color"],
+            "title": "ColorItem",
+            "type": "object",
+        }
+
+        assert ColorItem.model_json_schema() == expected
+
+else:
+
+    def test_json_schema():
+        expected = {
+            "properties": {
+                "color": {
+                    "description": "Enum values: RED, BLUE, GREEN",
+                    "title": "Color",
+                    "type": "string",
+                },
+                "default": {
+                    "type": "string",
+                    "default": 1,
+                    "description": "Enum values: RED, BLUE, GREEN",
+                    "title": "Default",
+                },
+                "empty": {
+                    "description": "Enum values: RED, BLUE, GREEN",
+                    "title": "Empty",
+                    "type": "string",
+                },
+            },
+            "required": ["color"],
+            "title": "ColorItem",
+            "type": "object",
+        }
+        assert ColorItem.schema() == expected
