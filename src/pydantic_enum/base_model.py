@@ -69,9 +69,13 @@ class _BaseModel(BaseModel):
     def _patch_enum_description(cls):
         for _, field, enum_cls in cls.enum_fields():
             if issubclass(enum_cls, IntEnum):
-                # Add description
-                if not field.description:
-                    field.description = f"Enum values: {', '.join(e.name for e in enum_cls)}"
+                extra = {"enum": [e.name for e in enum_cls]}
+                if is_pydantic_v2():
+                    if not field.json_schema_extra:
+                        field.json_schema_extra = extra
+                else:
+                    if not field.extra:
+                        field.extra = extra
 
 
 def create_model_v2() -> type[BaseModel]:

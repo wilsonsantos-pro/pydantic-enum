@@ -23,12 +23,12 @@ class ColorItem(MyBaseModel):
     empty: Annotated[str | None, Color] = Field(default=None)
 
 
-def test_description():
-    expected = "Enum values: RED, BLUE, GREEN"
+def test_json_schema_enum():
+    expected = [e.name for e in Color]
     if is_pydantic_v2():
-        assert ColorItem.model_fields["color"].description == expected
+        assert ColorItem.model_fields["color"].json_schema_extra["enum"] == expected
     else:
-        assert ColorItem.__fields__["color"].field_info.description == expected
+        assert ColorItem.__fields__["color"].field_info.extra["enum"] == expected
 
 
 def test_default():
@@ -92,20 +92,20 @@ if is_pydantic_v2():
         expected = {
             "properties": {
                 "color": {
-                    "description": "Enum values: RED, BLUE, GREEN",
+                    "enum": ["RED", "BLUE", "GREEN"],
                     "title": "Color",
                     "type": "string",
                 },
                 "default": {
                     "type": "string",
                     "default": 1,
-                    "description": "Enum values: RED, BLUE, GREEN",
+                    "enum": ["RED", "BLUE", "GREEN"],
                     "title": "Default",
                 },
                 "empty": {
                     "anyOf": [{"type": "string"}, {"type": "null"}],
                     "default": None,
-                    "description": "Enum values: RED, BLUE, GREEN",
+                    "enum": ["RED", "BLUE", "GREEN"],
                     "title": "Empty",
                 },
             },
@@ -122,19 +122,19 @@ else:
         expected = {
             "properties": {
                 "color": {
-                    "description": "Enum values: RED, BLUE, GREEN",
+                    "enum": ["RED", "BLUE", "GREEN"],
                     "title": "Color",
                     "type": "string",
                 },
                 "default": {
                     "type": "string",
                     "default": 1,
-                    "description": "Enum values: RED, BLUE, GREEN",
+                    "enum": ["RED", "BLUE", "GREEN"],
                     "title": "Default",
                 },
                 "empty": {
-                    "description": "Enum values: RED, BLUE, GREEN",
                     "title": "Empty",
+                    "enum": ["RED", "BLUE", "GREEN"],
                     "type": "string",
                 },
             },
